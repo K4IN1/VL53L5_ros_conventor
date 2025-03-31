@@ -1,0 +1,35 @@
+<launch>
+  <!-- 主节点启动 -->
+  <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud" value="250000"/>
+  </node>
+  <!-- <node pkg="conventor" type="conventor" name="mm2m1" output="screen">
+        <remap from="input" to="/depth_image1"/>
+        <remap from="output" to="/depth_image_float1"/>
+    </node>
+    <node pkg="conventor" type="conventor" name="mm2m2" output="screen">
+        <remap from="input" to="/depth_image2"/>
+        <remap from="output" to="/depth_image_float2"/>
+    </node> -->
+  <node pkg="conventor" type="multisensor" name="multi_depth_to_pointcloud" output="screen">
+    <!-- 目标坐标系 -->
+    <param name="target_frame" value="cam0_link" />
+    
+    <!-- 单位转换因子（毫米转米） -->
+    <param name="scale_factor" value="0.001" />
+    
+    <!-- 相机列表配置 -->
+    <rosparam>
+      cameras:
+        - depth_topic: /depth_image1
+          camera_info_topic: /cam_info1
+        - depth_topic: /depth_image2
+          camera_info_topic: /cam_info2
+    </rosparam>
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="camera1_to_map"
+          args="0 -0.012 0.028 1.965 0 1.57 cam0_link sensor1" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="camera2_to_map"
+          args="0 0.012 0.028 1.175 0 1.57 cam0_link sensor2" />
+</launch>

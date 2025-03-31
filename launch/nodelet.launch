@@ -1,0 +1,28 @@
+<launch>
+    <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial" output="screen">
+        <param name="port" value="/dev/ttyUSB0"/>
+    </node>
+    <node pkg="conventor" type="conventor" name="mm2m1" output="screen">
+        <remap from="input" to="/depth_image1"/>
+        <remap from="output" to="/depth_image_float1"/>
+    </node>
+    <node pkg="conventor" type="conventor" name="mm2m2" output="screen">
+        <remap from="input" to="/depth_image2"/>
+        <remap from="output" to="/depth_image_float2"/>
+    </node>
+    <node pkg="nodelet" type="nodelet" name="depth_to_pointcloud1" args="standalone depth_image_proc/point_cloud_xyz">
+        <remap from="image_rect" to="/depth_image_float1"/>
+        <remap from="camera_info" to="/cam_info1"/>
+        <remap from="points" to="/cam_points1"/>
+    </node>
+    <node pkg="nodelet" type="nodelet" name="depth_to_pointcloud2" args="standalone depth_image_proc/point_cloud_xyz">
+        <remap from="image_rect" to="/depth_image_float2"/>
+        <remap from="camera_info" to="/cam_info2"/>
+        <remap from="points" to="/cam_points2"/>
+    </node>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera1_to_map"
+          args="0 -0.012 0.028 1.949 0 1.57 map sensor1" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera2_to_map"
+          args="0 0.012 0.028 1.191 0 1.57 map sensor2" />
+          <!-- xyz yaw pitch roll -->
+</launch>
